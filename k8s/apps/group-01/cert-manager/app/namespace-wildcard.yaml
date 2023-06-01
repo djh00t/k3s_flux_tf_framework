@@ -1,0 +1,8 @@
+###
+### This namespace is used to distribute wildcard certificates to other namespaces.
+###
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager-wildcard

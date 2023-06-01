@@ -1,0 +1,77 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: 01-monitoring
+  namespace: flux-system
+spec:
+  interval: 60m
+  timeout: 15m
+  path: "./k8s/apps/group-01/monitoring/app"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: 00-cluster-config
+  healthChecks:
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: kube-prometheus-stack-operator
+      namespace: monitoring
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: kube-prometheus-stack-kube-state-metrics
+      namespace: monitoring
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: kube-prometheus-stack-grafana
+      namespace: monitoring
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: snmp-exporter-prometheus-snmp-exporter
+      namespace: monitoring
+    - apiVersion: apps/v1
+      kind: Deployment
+      name: blackbox-exporter-prometheus-blackbox-exporter
+      namespace: monitoring
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+  postBuild:
+    substitute: { }
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
+      - kind: Secret
+        name: cluster-secrets
+
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: 01-monitoring-config
+  namespace: flux-system
+spec:
+  interval: 15m
+  timeout: 5m
+  path: "./k8s/apps/group-01/monitoring/config"
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+  dependsOn:
+    - name: 01-monitoring
+  postBuild:
+    substitute: { }
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
+      - kind: Secret
+        name: cluster-secrets

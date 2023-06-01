@@ -1,0 +1,38 @@
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+  namespace: cert-manager
+spec:
+  acme:
+    email: certs-${CONFIG_INFRA_CLUSTER}@${CONFIG_INFRA_DOMAIN}
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+    - selector:
+        ###
+        ### Add any additional domains you wish to use to this list
+        ###
+        dnsZones:
+          - ${CONFIG_INFRA_DOMAIN}
+          - ${CONFIG_INFRA_CLUSTER}.${CONFIG_INFRA_DOMAIN}
+      ###
+      ### dns01 (recommended) solver
+      ###
+      dns01:
+        cloudflare:
+          apiTokenSecretRef:
+            name: cert-manager-secrets
+            key: SECRET_CF_API_TOKEN
+      ###
+      ### http01 (Default) solver
+      ###
+      # http01:
+      #   ingress:
+      #     class: nginx
+      ### Uncomment the following lines to use Cloudflare DNS01 challenges instead of HTTP01
+      ### Note: You can not use both HTTP01 and DNS01 challenges at the same time for the same domain.
+      ### You will also need to make sure you have the Cloudflare API key and email address defined
+      ### in the config/cert-manager.secrets.sops.yaml file.

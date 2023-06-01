@@ -1,0 +1,24 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cert-manager-wildcard-${CONFIG_INFRA_DOMAIN}
+  namespace: cert-manager-wildcard
+spec:
+  secretName: cert-manager-wildcard-${CONFIG_INFRA_DOMAIN}
+  issuerRef:
+    ### Comment/uncomment the two lines below to switch between staging and production issuers
+    # name: letsencrypt-staging
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  dnsNames:
+    - "${CONFIG_INFRA_DOMAIN}"
+    - "*.${CONFIG_INFRA_DOMAIN}"
+    - "*.${CONFIG_INFRA_CLUSTER}.${CONFIG_INFRA_DOMAIN}"
+    - "*.${CONFIG_K8S01_HOSTNAME}.${CONFIG_INFRA_DOMAIN}"
+  ### You can add additional domains to the list above or you can create a new certificate file
+  ### in the same format as this file.
+  # Sync certificate to matching namespaces
+  secretTemplate:
+    annotations:
+      kubed.appscode.com/sync: ""
