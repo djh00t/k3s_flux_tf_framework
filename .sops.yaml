@@ -1,0 +1,7 @@
+---
+creation_rules:
+    # Select all files ending in .sops.yaml but not files whose entire name is .sops.yaml
+    - path_regex: ^(.*/)?.*(secrets|[a-z].sops).ya?ml$
+      # Select only files containing data and stringData fields
+      encrypted_regex: ^(data|stringData)$
+      age: age1uh4xmxfre8wsglm3zmz765crc5y8qc42nklgfq8hlrhglunqyguqdcac6h

@@ -1,0 +1,74 @@
+#!/bin/bash
+###
+### Lazy git committer
+###
+# Collect $@ as MESSAGE
+MESSAGE=$@
+COUNTER=0
+ERR=0
+
+# Get root of git repo
+GIT_ROOT=$(git rev-parse --show-toplevel)
+
+# If $GIT_ROOT/.git/index.lock exists then remove it
+if [ -f $GIT_ROOT/.git/index.lock ]; then
+    rm $GIT_ROOT/.git/index.lock
+fi
+
+function git_add_commit {
+    # Add all uncommitted files to the commit
+    git add -A
+    # Commit
+    git commit -a -m "$MESSAGE"
+    # Get the exit code of the last command
+    export ERR=$?
+    COUNTER=$((COUNTER+1))
+
+    # Make sure the commit was successful
+    check_err git_add_commit git_push
+}
+
+function git_push {
+    # Push
+    git push
+    # Get the exit code of the last command
+    export ERR=$?
+
+    # Increment COUNTER
+    COUNTER=$((COUNTER+1))
+
+    # Make sure the push was successful
+    check_err git_push echo_end
+}
+
+
+function check_err {
+    # Collect variables
+    LAST_COMMAND=$1
+    NEXT_COMMAND=$2
+    # If COUNTER is less than or equal to 3 then continue
+    if [ $COUNTER -le 3 ]; then
+        # If the exit code is 0 then run the next command, otherwise run the last command again
+        if [ $ERR -eq 0 ]; then
+            echo "Running $NEXT_COMMAND"
+            COUNTER=0
+            $NEXT_COMMAND
+        else
+        # If the exit code is not 0 then run the last command again
+            echo "Running $LAST_COMMAND"
+            $LAST_COMMAND
+        fi
+    else
+        echo "$LAST_COMMAND failed - exiting"
+        exit 1
+    fi
+}
+
+function echo_end {
+    flux reconcile source git flux-system
+    flux reconcile kustomization flux-system
+    echo "Done"
+}
+
+# Run commit/push process
+check_err git_add_commit git_add_commit

@@ -1,0 +1,3 @@
+[submodule "includes/git-hooks"]
+	path = includes/git-hooks
+	url = https://github.com/djh00t/git-hooks.git
