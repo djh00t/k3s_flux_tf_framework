@@ -1,0 +1,18 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: 00-cluster-config
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  timeout: 15m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  prune: true
+  path: ./k8s/apps/group-00/cluster-config/config
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age

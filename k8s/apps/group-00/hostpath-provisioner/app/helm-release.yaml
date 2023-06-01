@@ -1,0 +1,22 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: hostpath-provisioner
+  namespace: kube-system
+spec:
+  chart:
+    spec:
+      chart: hostpath-provisioner
+      version: 0.2.13
+      sourceRef:
+        kind: HelmRepository
+        name: hostpath-provisioner
+        namespace: flux-system
+  interval: 15m
+  timeout: 5m
+  releaseName: hostpath-provisioner
+  valuesFrom:
+  - kind: ConfigMap
+    name: hostpath-provisioner-helm-chart-value-overrides
+    valuesKey: values.yaml # This is the default, but best to be explicit for clarity
