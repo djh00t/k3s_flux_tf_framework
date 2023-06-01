@@ -1,0 +1,61 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: 02-cloudnative-pg
+  namespace: flux-system
+spec:
+  path: ./k8s/apps/group-02/cloudnative-pg/app/
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  interval: 30m
+  retryInterval: 1m
+  timeout: 3m
+  wait: true
+  healthChecks:
+    - apiVersion: helm.toolkit.fluxcd.io/v2beta1
+      kind: HelmRelease
+      name: cloudnative-pg
+      namespace: cloudnative-pg
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+  postBuild:
+    substitute: { }
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
+      - kind: Secret
+        name: cluster-secrets
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: 02-cloudnative-pg-config
+  namespace: flux-system
+spec:
+  path: ./k8s/apps/group-02/cloudnative-pg/config/
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  interval: 30m
+  retryInterval: 1m
+  timeout: 3m
+  dependsOn:
+    - name: 02-cloudnative-pg
+  wait: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
+  postBuild:
+    substitute: { }
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-config
+      - kind: Secret
+        name: cluster-secrets

@@ -1,0 +1,26 @@
+---
+# Example of PostgreSQL cluster
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cloudnative-pg-cluster
+  namespace: cloudnative-pg
+spec:
+  instances: 3
+  # Example of rolling update strategy:
+  # - unsupervised: automated update of the primary once all
+  #                 replicas have been upgraded (default)
+  # - supervised: requires manual supervision to perform
+  #               the switchover of the primary
+  primaryUpdateStrategy: unsupervised
+  # Require 10Gi of space
+  storage:
+    size: 10Gi
+  superuserSecret:
+    name: superuser-secret
+  bootstrap:
+    initdb:
+      database: ${CONFIG_KEYCLOAK_ADMIN}
+      owner: ${CONFIG_KEYCLOAK_ADMIN}
+      secret:
+        name: ${CONFIG_KEYCLOAK_ADMIN}-secret

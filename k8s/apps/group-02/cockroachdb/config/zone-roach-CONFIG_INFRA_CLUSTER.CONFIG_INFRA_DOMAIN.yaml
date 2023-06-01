@@ -1,0 +1,24 @@
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: roach-${CONFIG_INFRA_CLUSTER}.${CONFIG_INFRA_DOMAIN}
+  namespace: external-dns
+spec:
+  endpoints:
+    - dnsName: roach.${CONFIG_INFRA_DOMAIN}
+      recordTTL: 180
+      recordType: CNAME
+      targets:
+        - ingress-${CONFIG_INFRA_CLUSTER}.${CONFIG_INFRA_DOMAIN}
+      providerSpecific:
+        - name: external-dns.alpha.kubernetes.io/cloudflare-proxied
+          value: 'false'
+    - dnsName: roach-${CONFIG_INFRA_CLUSTER}.${CONFIG_INFRA_DOMAIN}
+      recordTTL: 180
+      recordType: CNAME
+      targets:
+        - ingress-${CONFIG_INFRA_CLUSTER}.${CONFIG_INFRA_DOMAIN}
+      providerSpecific:
+        - name: external-dns.alpha.kubernetes.io/cloudflare-proxied
+          value: 'false'

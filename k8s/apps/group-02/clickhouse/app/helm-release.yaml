@@ -1,0 +1,25 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: clickhouse
+  namespace: clickhouse
+  labels:
+    app: clickhouse
+spec:
+  targetNamespace: clickhouse
+  releaseName: clickhouse
+  chart:
+    spec:
+      chart: clickhouse
+      version: 3.x.x
+      sourceRef:
+        kind: HelmRepository
+        name: clickhouse
+        namespace: flux-system
+  interval: 1m
+  timeout: 3m
+  valuesFrom:
+  - kind: ConfigMap
+    name: clickhouse-helm-chart-value-overrides
+    valuesKey: values.yaml
